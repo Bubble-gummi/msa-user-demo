@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.io.Serializable;
@@ -19,10 +20,10 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "members")
+@Table(name = "USER")
 @Data
 @NoArgsConstructor
-public class UserEntity implements Serializable {
+public class UserEntity implements UserDetails {
 
     @Id
     private String email;
@@ -31,21 +32,46 @@ public class UserEntity implements Serializable {
     private String userName;
     private String password;
     private String roles;
-    private boolean enabled; // 이메일 인증 여부
+    private boolean enable; // 이메일 인증 여부
+
+
 
     @Builder
-    public UserEntity(String email, String userName, String password, String hp, List<Role> roles, boolean enabled) {
+    public UserEntity(String email, String userName, String password, String roles, boolean enable) {
         this.email = email;
         this.userName = userName;
         this.password = password;
-        this.roles = roles != null ? roles.toString() : List.of(Role.ROLE_FAN).toString(); // 기본값
-        this.enabled = enabled;
+        this.roles = roles;
+        this.enable = enable;
     }
 
-    public enum Role {
-        ROLE_STAR, ROLE_FAN;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
     }
 
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // UserDetails.super.isAccountNonExpired();
+    }
 
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // UserDetails.super.isEnabled();
+    }
 }
