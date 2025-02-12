@@ -33,6 +33,8 @@ public class UserEntity implements Serializable {
     private String roles;
     private boolean enabled; // 이메일 인증 여부
 
+
+
     @Builder
     public UserEntity(String email, String userName, String password, String hp, List<Role> roles, boolean enabled) {
         this.email = email;
@@ -45,6 +47,8 @@ public class UserEntity implements Serializable {
     public enum Role {
         ROLE_STAR, ROLE_FAN;
     }
+
+
 
 
 
