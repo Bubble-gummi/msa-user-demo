@@ -26,21 +26,21 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(rawSecretKey.getBytes());
     }
 
-    public String createAccessToken(String email, String role) {
-        return createToken(email, role, accessTokenExpiration);
+    public String createAccessToken(String email, String roles) {
+        return createToken(email, roles, accessTokenExpiration);
     }
 
     public String createRefreshToken() {
         return createToken(null, null, refreshTokenExpiration); // 7일 만료시간
     }
 
-    public String createToken(String email, String role, long expiration) {
+    public String createToken(String email, String roles, long expiration) {
         Map<String, Object> claims = new HashMap<>();
         if (email != null) {
             claims.put("email", email);
         }
-        if (role != null) {
-            claims.put("role", role);
+        if (roles != null) {
+            claims.put("roles", roles);
         }
 
         Date now = new Date();

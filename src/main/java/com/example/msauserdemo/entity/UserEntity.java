@@ -20,7 +20,7 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "USER")
+@Table(name = "User")
 @Data
 @NoArgsConstructor
 public class UserEntity implements UserDetails {
@@ -47,7 +47,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_STAR, ROLE_FAN"));
     }
 
     @Override

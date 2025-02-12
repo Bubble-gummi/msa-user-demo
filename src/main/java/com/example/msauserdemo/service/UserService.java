@@ -6,6 +6,8 @@ import com.example.msauserdemo.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private JavaMailSenderImpl mailSender;
 
     public void createUser(@Valid UserDto userDto) {
         if( userDto.getEmail() == null || userDto.getEmail().isEmpty() ) {
@@ -50,6 +54,26 @@ public class UserService {
     private void sendValidEmail(UserEntity userEntity) {
         String token = UUID.randomUUID().toString();
         redisTemplate.opsForValue().set(token, userEntity.getEmail(),1, TimeUnit.DAYS);
+        String url = "http://localhost:8080/user/vaild?token=" + token;
+        sendMail( userEntity.getEmail(), "이메일 인증", "링크를 눌러서 인증: " + url);
+    }
 
+    private void sendMail(String email, String subject, String content) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject(subject);
+        message.setText(content);
+        mailSender.send(message);
+    }
+    public void updateActivate(String token) {
+        String email = (String) redisTemplate.opsForValue().get(token);
+        if (email == null) {
+            throw new IllegalArgumentException("잘못된 토큰 혹은 만료된 토큰");
+        }
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 오류(존재x)"));
+        userEntity.setEnable(true);
+        userRepository.save(userEntity);
+        redisTemplate.delete(token);
     }
 }
